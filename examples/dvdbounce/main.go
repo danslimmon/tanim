@@ -2,27 +2,34 @@ package main
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/danslimmon/tanim"
 	"github.com/gdamore/tcell"
 )
 
 type Rectangle struct {
-	// type Figure struct {
-	//     Origin Dim
-	// }
-	tanim.Figure
-
 	// The X and Y dimensions of the rectangle. It is X cells wide and Y cells tall.
-	X, Y  int
+	Sides tanim.Dim
 	Style tcell.Style
+
+	origin tanim.Dim
+}
+
+// Origin returns the position of the bottom left corner of a rectangle that contains the figure.
+func (fig Rectangle) Origin() tanim.Dim {
+	return fig.origin
+}
+
+func (fig Rectangle) SetOrigin(d tanim.Dim) {
+	fig.origin = d
 }
 
 // Extent returns the dimensions of the rectangular region that fig will be drawn in.
 //
 // fig.DrawCell will be called for each cell in this region.
 func (fig Rectangle) Extent() tanim.Dim {
-	return tanim.Dim{fig.X, fig.Y}
+	return fig.Sides
 }
 
 // DrawCell returns what to draw at the given position relative to Origin.
@@ -34,12 +41,19 @@ func (fig Rectangle) DrawCell(pos tanim.Dim) (draw bool, char rune, style tcell.
 }
 
 type Translator struct {
-	tanim.Figure
-
 	Vx, Vy  float64
 	Wrapped tanim.Figure
 
+	origin tanim.Dim
 	dx, dy float64
+}
+
+func (fig Translator) Origin() tanim.Dim {
+	return fig.Wrapped.Origin()
+}
+
+func (fig Translator) SetOrigin(d tanim.Dim) {
+	fig.Wrapped.SetOrigin(d)
 }
 
 func (fig Translator) Extent() tanim.Dim {
@@ -53,16 +67,22 @@ func (fig Translator) DrawCell(pos tanim.Dim) (draw bool, char rune, style tcell
 // OnTick is called at every tick. It returns a bool indicating whether fig should continue to
 // exist.
 func (fig Translator) OnTick(t int) bool {
-	fig.dx += Vx
-	fig.dy += Vy
+	oldOrigin := fig.Origin()
+	newOrigin := oldOrigin
+
+	fig.dx += fig.Vx
+	fig.dy += fig.Vy
+
 	if math.Abs(fig.dx) >= 1.0 {
-		fig.Origin.X += math.Floor(fig.dx)
+		newOrigin.X += int(math.Floor(fig.dx))
 		fig.dx = fig.dx - math.Floor(fig.dx)
 	}
 	if math.Abs(fig.dy) >= 1.0 {
-		fig.Origin.Y += math.Floor(fig.dy)
+		newOrigin.Y += int(math.Floor(fig.dy))
 		fig.dy = fig.dy - math.Floor(fig.dy)
 	}
+
+	fig.SetOrigin(newOrigin)
 	return true
 }
 
