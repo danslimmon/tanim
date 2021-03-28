@@ -29,7 +29,9 @@ func (fig *Rectangle) SetOrigin(d tanim.Dim) {
 //
 // fig.DrawCell will be called for each cell in this region.
 func (fig *Rectangle) Extent() tanim.Dim {
-	return fig.Sides
+	// The sides are lengths, but the Extent box is drawn inclusively. So we need to subtract 1
+	// from each dimension.
+	return fig.Sides.Sub(tanim.Dim{1, 1})
 }
 
 // DrawCell returns what to draw at the given position relative to Origin.
@@ -93,10 +95,10 @@ func (fig *Translator) OnTick(t int) bool {
 func main() {
 	a, err := tanim.NewAnimation([]tanim.Figure{
 		&Translator{
-			Vx: 1,
-			Vy: 1,
+			Vx: 0.01,
+			Vy: 0.01,
 			Wrapped: &Rectangle{
-				Sides: tanim.Dim{4, 2},
+				Sides: tanim.Dim{1, 1},
 				Style: tcell.StyleDefault.Background(tcell.ColorYellow),
 			},
 		},

@@ -79,8 +79,8 @@ func (a Animation) onTick(t int) {
 			a.screen.SetContent(cell.X, cell.Y, ' ', nil, tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset))
 		}
 
-		// uh, replace this with a dimRange and get rid of Dim.Each
-		extent.Each(func(cell Dim) {
+		// Draw Figures anew
+		dimRange{Dim{0, 0}, extent}.Each(func(cell Dim) {
 			draw, char, style := se.Fig.DrawCell(cell)
 			if draw {
 				a.screen.SetContent(origin.X+cell.X, origin.Y+cell.Y, char, nil, style)

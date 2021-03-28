@@ -4,17 +4,15 @@ type Dim struct {
 	X, Y int
 }
 
-// Add returns the result of adding extent's dimensions to those of origin.
-func (origin Dim) Add(extent Dim) Dim {
-	return Dim{origin.X + extent.X, origin.Y + extent.Y}
+// Add returns the result of adding d1's dimensions to those of d0.
+func (d0 Dim) Add(d1 Dim) Dim {
+	return Dim{d0.X + d1.X, d0.Y + d1.Y}
 }
 
-func (d Dim) Each(fn func(Dim)) {
-	for x := 0; x < d.X; x++ {
-		for y := 0; y < d.Y; y++ {
-			fn(Dim{x, y})
-		}
-	}
+// Sub returns the result of subtracting d1's dimensions from those of d0.
+func (d0 Dim) Sub(d1 Dim) Dim {
+	negd1 := Dim{-d1.X, -d1.Y}
+	return d0.Add(negd1)
 }
 
 type dimRange struct {
