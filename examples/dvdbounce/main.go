@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"math"
+	"time"
 
 	"github.com/danslimmon/tanim"
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 )
 
 type Rectangle struct {
@@ -17,18 +17,18 @@ type Rectangle struct {
 }
 
 // Origin returns the position of the bottom left corner of a rectangle that contains the figure.
-func (fig Rectangle) Origin() tanim.Dim {
+func (fig *Rectangle) Origin() tanim.Dim {
 	return fig.origin
 }
 
-func (fig Rectangle) SetOrigin(d tanim.Dim) {
+func (fig *Rectangle) SetOrigin(d tanim.Dim) {
 	fig.origin = d
 }
 
 // Extent returns the dimensions of the rectangular region that fig will be drawn in.
 //
 // fig.DrawCell will be called for each cell in this region.
-func (fig Rectangle) Extent() tanim.Dim {
+func (fig *Rectangle) Extent() tanim.Dim {
 	return fig.Sides
 }
 
@@ -36,8 +36,12 @@ func (fig Rectangle) Extent() tanim.Dim {
 //
 // If draw is true, char will be drawn with the returned style at pos. If draw is false, nothing
 // will be drawn at pos.
-func (fig Rectangle) DrawCell(pos tanim.Dim) (draw bool, char rune, style tcell.Style) {
+func (fig *Rectangle) DrawCell(pos tanim.Dim) (draw bool, char rune, style tcell.Style) {
 	return true, ' ', fig.Style
+}
+
+func (fig *Rectangle) OnTick(t int) bool {
+	return true
 }
 
 type Translator struct {
@@ -48,25 +52,25 @@ type Translator struct {
 	dx, dy float64
 }
 
-func (fig Translator) Origin() tanim.Dim {
+func (fig *Translator) Origin() tanim.Dim {
 	return fig.Wrapped.Origin()
 }
 
-func (fig Translator) SetOrigin(d tanim.Dim) {
+func (fig *Translator) SetOrigin(d tanim.Dim) {
 	fig.Wrapped.SetOrigin(d)
 }
 
-func (fig Translator) Extent() tanim.Dim {
+func (fig *Translator) Extent() tanim.Dim {
 	return fig.Wrapped.Extent()
 }
 
-func (fig Translator) DrawCell(pos tanim.Dim) (draw bool, char rune, style tcell.Style) {
+func (fig *Translator) DrawCell(pos tanim.Dim) (draw bool, char rune, style tcell.Style) {
 	return fig.Wrapped.DrawCell(pos)
 }
 
 // OnTick is called at every tick. It returns a bool indicating whether fig should continue to
 // exist.
-func (fig Translator) OnTick(t int) bool {
+func (fig *Translator) OnTick(t int) bool {
 	oldOrigin := fig.Origin()
 	newOrigin := oldOrigin
 
@@ -87,5 +91,20 @@ func (fig Translator) OnTick(t int) bool {
 }
 
 func main() {
-	fmt.Println("yo")
+	a, err := tanim.NewAnimation([]tanim.Figure{
+		&Translator{
+			Vx: 1,
+			Vy: 1,
+			Wrapped: &Rectangle{
+				Sides: tanim.Dim{4, 2},
+				Style: tcell.StyleDefault.Background(tcell.ColorYellow),
+			},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	a.TickEvery(100 * time.Millisecond)
+	a.Start()
+	a.Wait()
 }
