@@ -8,44 +8,6 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-type Rectangle struct {
-	// The X and Y dimensions of the rectangle. It is X cells wide and Y cells tall.
-	Sides tanim.Dim
-	Style tcell.Style
-
-	origin tanim.Dim
-}
-
-// Origin returns the position of the bottom left corner of a rectangle that contains the figure.
-func (fig *Rectangle) Origin() tanim.Dim {
-	return fig.origin
-}
-
-func (fig *Rectangle) SetOrigin(d tanim.Dim) {
-	fig.origin = d
-}
-
-// Extent returns the dimensions of the rectangular region that fig will be drawn in.
-//
-// fig.DrawCell will be called for each cell in this region.
-func (fig *Rectangle) Extent() tanim.Dim {
-	// The sides are lengths, but the Extent box is drawn inclusively. So we need to subtract 1
-	// from each dimension.
-	return fig.Sides.Sub(tanim.Dim{1, 1})
-}
-
-// DrawCell returns what to draw at the given position relative to Origin.
-//
-// If draw is true, char will be drawn with the returned style at pos. If draw is false, nothing
-// will be drawn at pos.
-func (fig *Rectangle) DrawCell(pos tanim.Dim) (draw bool, char rune, style tcell.Style) {
-	return true, ' ', fig.Style
-}
-
-func (fig *Rectangle) OnTick(t int) bool {
-	return true
-}
-
 type Translator struct {
 	Vx, Vy  float64
 	Wrapped tanim.Figure
@@ -95,11 +57,15 @@ func (fig *Translator) OnTick(t int) bool {
 func main() {
 	a, err := tanim.NewAnimation([]tanim.Figure{
 		&Translator{
-			Vx: 0.01,
-			Vy: 0.01,
-			Wrapped: &Rectangle{
-				Sides: tanim.Dim{1, 1},
-				Style: tcell.StyleDefault.Background(tcell.ColorYellow),
+			Vx: 1,
+			Vy: 1,
+			Wrapped: &tanim.Box{
+				BoxChars: tanim.DefaultBoxChars(),
+				Style:    tcell.StyleDefault.Foreground(tcell.ColorYellow).Background(tcell.ColorReset),
+				Wrapped: &tanim.Text{
+					Text:  "DVD Player",
+					Style: tcell.StyleDefault,
+				},
 			},
 		},
 	})

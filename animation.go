@@ -38,6 +38,11 @@ func (a Animation) TickEvery(dur time.Duration) {
 	}()
 }
 
+func (a Animation) setContent(cell Dim, char rune, style tcell.Style) {
+	screenPos := tanimToTcell(a.screen, cell)
+	a.screen.SetContent(screenPos.X, screenPos.Y, char, nil, style)
+}
+
 func (a Animation) mainLoop() {
 	for {
 		select {
@@ -76,14 +81,14 @@ func (a Animation) onTick(t int) {
 		newRange := dimRange{origin, origin.Add(extent)}
 		for _, cell := range lastRange.Sub(newRange) {
 			logger.WithField("cell", cell).Info("erasing cell")
-			a.screen.SetContent(cell.X, cell.Y, ' ', nil, tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset))
+			a.setContent(cell, ' ', tcell.StyleDefault.Background(tcell.ColorReset))
 		}
 
 		// Draw Figures anew
 		dimRange{Dim{0, 0}, extent}.Each(func(cell Dim) {
 			draw, char, style := se.Fig.DrawCell(cell)
 			if draw {
-				a.screen.SetContent(origin.X+cell.X, origin.Y+cell.Y, char, nil, style)
+				a.setContent(origin.Add(cell), char, style)
 			}
 		})
 
