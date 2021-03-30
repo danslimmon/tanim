@@ -86,8 +86,8 @@ func (a Animation) onTick(t int) {
 
 		// Draw Figures anew
 		dimRange{Dim{0, 0}, extent}.Each(func(cell Dim) {
-			draw, char, style := se.Fig.DrawCell(cell)
-			if draw {
+			char, style := se.Fig.DrawCell(cell)
+			if char != 0 {
 				a.setContent(origin.Add(cell), char, style)
 			}
 		})

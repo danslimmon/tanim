@@ -28,7 +28,7 @@ func (fig *Translator) Extent() tanim.Dim {
 	return fig.Wrapped.Extent()
 }
 
-func (fig *Translator) DrawCell(pos tanim.Dim) (draw bool, char rune, style tcell.Style) {
+func (fig *Translator) DrawCell(pos tanim.Dim) (char rune, style tcell.Style) {
 	return fig.Wrapped.DrawCell(pos)
 }
 
