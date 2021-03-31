@@ -15,12 +15,12 @@ func (d0 Dim) Sub(d1 Dim) Dim {
 	return d0.Add(negd1)
 }
 
-type dimRange struct {
+type DimRange struct {
 	Origin Dim
 	Extent Dim
 }
 
-func (dr dimRange) Each(fn func(Dim)) {
+func (dr DimRange) Each(fn func(Dim)) {
 	for x := dr.Origin.X; x <= dr.Extent.X; x++ {
 		for y := dr.Origin.Y; y <= dr.Extent.Y; y++ {
 			logger.WithField("x", x).WithField("y", y).Info("Each")
@@ -29,7 +29,7 @@ func (dr dimRange) Each(fn func(Dim)) {
 	}
 }
 
-func (dr dimRange) IsMember(d Dim) bool {
+func (dr DimRange) IsMember(d Dim) bool {
 	if d.X < dr.Origin.X || d.X > dr.Extent.X || d.Y < dr.Origin.Y || d.Y > dr.Extent.Y {
 		return false
 	}
@@ -37,7 +37,7 @@ func (dr dimRange) IsMember(d Dim) bool {
 }
 
 // Sub returns all points that are members of dr0 but not of dr1.
-func (dr0 dimRange) Sub(dr1 dimRange) []Dim {
+func (dr0 DimRange) Sub(dr1 DimRange) []Dim {
 	rslt := make([]Dim, 0)
 	dr0.Each(func(d Dim) {
 		if !dr1.IsMember(d) {

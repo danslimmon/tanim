@@ -77,15 +77,15 @@ func (a Animation) onTick(t int) {
 		origin, extent := se.Fig.Origin(), se.Fig.Extent()
 
 		// Erase any cells that used to be occupied by the Figure but are no longer
-		lastRange := dimRange{se.LastOrigin, se.LastExtent}
-		newRange := dimRange{origin, origin.Add(extent)}
+		lastRange := DimRange{se.LastOrigin, se.LastExtent}
+		newRange := DimRange{origin, origin.Add(extent)}
 		for _, cell := range lastRange.Sub(newRange) {
 			logger.WithField("cell", cell).Info("erasing cell")
 			a.setContent(cell, ' ', tcell.StyleDefault.Background(tcell.ColorReset))
 		}
 
 		// Draw Figures anew
-		dimRange{Dim{0, 0}, extent}.Each(func(cell Dim) {
+		DimRange{Dim{0, 0}, extent}.Each(func(cell Dim) {
 			char, style := se.Fig.DrawCell(cell)
 			if char != 0 {
 				a.setContent(origin.Add(cell), char, style)
